@@ -1,10 +1,9 @@
 const Home = ()  =>{
   return (
     <div>
-      <h1>Welcome to Remix!</h1>
+      <h1>Welcome to My Blog!</h1>
       <p>
-        Focused on web standards and modern web app UX,
-        you’re simply going to build better websites
+        This blog is built with Remix and Strapi, it`s wonderful, feel free to explore my blog.
       </p>
     </div>
   )

@@ -1,23 +1,27 @@
 import { Link, useLoaderData } from '@remix-run/react'
+import type { LoaderFunction } from '@remix-run/node'
 
 export interface PostItem {
   id: string,
   attributes: {
     title: string,
     body: string,
+    description: string,
+    publishedAt: string,
   }
 }
 
-export interface ILoaderData {
+export interface ILoaderDataPosts {
   data: PostItem[],
   meta: any,
 }
 
-export const loader = async () => {
+export const loader:LoaderFunction = async () => {
+  // get posts
   const url = process.env.STRAPI_URL + '/api/posts'
   const res = await fetch(url)
   const jsonData = await res.json()
-  const {data, meta} = jsonData
+  const { data, meta } = jsonData
   return {
     data,
     meta,
@@ -25,7 +29,7 @@ export const loader = async () => {
 }
 
 const PostItems = () => {
-  const { data, meta } = useLoaderData<ILoaderData>()
+  const { data } = useLoaderData<ILoaderDataPosts>()
 
   return (
     <div>
@@ -40,6 +44,8 @@ const PostItems = () => {
           <li key={post.id}>
             <Link to={`/posts/${post.id}`}>
               <h3>{post.attributes.title}</h3>
+              <p>{post.attributes.description}</p>
+              {new Date(post.attributes.publishedAt).toLocaleString()}
             </Link>
           </li>
         ))}

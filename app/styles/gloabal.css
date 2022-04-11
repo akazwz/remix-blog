@@ -31,6 +31,10 @@ p {
 .logo {
     font-size: x-large;
     text-transform: uppercase;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
 }
 
 .navbar {

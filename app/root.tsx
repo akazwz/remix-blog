@@ -62,7 +62,8 @@ function Layout({ children }: ILayout) {
     <>
       <nav className='navbar'>
         <Link to='/' className='logo'>
-          Remix
+          <img src={'/logo.png'} alt='logo' width="32px" height="32px"/>
+          AKAZWZ
         </Link>
         <ul className='nav'>
           <li>
