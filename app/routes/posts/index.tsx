@@ -2,42 +2,44 @@ import { Link, useLoaderData } from '@remix-run/react'
 
 export interface PostItem {
   id: string,
-  title: string,
-  body: string,
-}
-
-export interface Data {
-  posts: PostItem[]
-}
-
-export const loader = async () => {
-  const posts: PostItem[] = [
-    { id: '001', title: 'Post 1', body: 'This is test post' },
-    { id: '002', title: 'Post 2', body: 'This is test post' },
-    { id: '003', title: 'Post 3', body: 'This is test post' },
-  ]
-  return {
-    posts,
+  attributes: {
+    title: string,
+    body: string,
   }
 }
 
+export interface ILoaderData {
+  data: PostItem[],
+  meta: any,
+}
+
+export const loader = async () => {
+  const url = process.env.STRAPI_URL + '/api/posts'
+  const res = await fetch(url)
+  const jsonData = await res.json()
+  const {data, meta} = jsonData
+  return {
+    data,
+    meta,
+  }
+}
 
 const PostItems = () => {
-  const { posts } = useLoaderData<Data>()
+  const { data, meta } = useLoaderData<ILoaderData>()
 
   return (
     <div>
-      <div className="page-header">
+      <div className='page-header'>
         <h1>Posts</h1>
-        <Link to="/posts/new" className="btn">
+        <Link to='/posts/new' className='btn'>
           New Post
         </Link>
       </div>
-      <ul className="posts-list">
-        {posts.map((post:PostItem)=>(
+      <ul className='posts-list'>
+        {data.map((post: PostItem) => (
           <li key={post.id}>
-            <Link to={post.id}>
-              <h3>{post.title}</h3>
+            <Link to={`/posts/${post.id}`}>
+              <h3>{post.attributes.title}</h3>
             </Link>
           </li>
         ))}

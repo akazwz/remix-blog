@@ -1,6 +1,6 @@
 import { Form, Link, useActionData } from '@remix-run/react'
 import type { ActionFunction } from '@remix-run/node'
-import { json } from '@remix-run/node'
+import { json, redirect } from '@remix-run/node'
 
 const validateTitle = (title: any) => {
   if (typeof title !== 'string' || title.length < 3) {
@@ -31,20 +31,24 @@ export const action: ActionFunction = async ({ request }) => {
   }
 
   if (Object.values(fieldErrors).some(Boolean)) {
-    return badRequest(fieldErrors)
+    return badRequest({ fieldErrors, fields })
   }
 
-  return {}
+  return redirect('/posts')
+}
+
+export interface IPostItemAction {
+  title?: string
+  body?: string
 }
 
 export interface IActionData {
-  title?: string,
-  body?: string
+  fieldErrors: IPostItemAction
+  fields: IPostItemAction
 }
 
 const NewPost = () => {
   const actionData = useActionData<IActionData>()
-
   return (
     <>
       <div className='page-header'>
@@ -62,16 +66,17 @@ const NewPost = () => {
               type='text'
               name='title'
               id='title'
+              defaultValue={actionData?.fields.title}
             />
             <div className='error'>
-              {actionData?.title
+              {actionData?.fieldErrors.title
                 ? (
                   <p
                     className='form-validation-error'
                     role='alert'
                     id='title-error'
                   >
-                    {actionData.title}
+                    {actionData.fieldErrors.title}
                   </p>
                 )
                 : null
@@ -83,16 +88,17 @@ const NewPost = () => {
             <textarea
               name='body'
               id='body'
+              defaultValue={actionData?.fields.body}
             />
             <div className='error'>
-              {actionData?.body
+              {actionData?.fieldErrors.body
                 ? (
                   <p
                     className='form-validation-error'
                     role='alert'
                     id='body-error'
                   >
-                    {actionData.body}
+                    {actionData.fieldErrors.body}
                   </p>
                 )
                 : null
