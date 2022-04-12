@@ -70,8 +70,6 @@ const NewPost = () => {
         setBodyValue(val)
     }
 
-    console.log(bodyValue)
-
     return (
         <>
             <div className='page-header'>
@@ -89,6 +87,7 @@ const NewPost = () => {
                             type='text'
                             name='title'
                             id='title'
+                            minLength={3}
                             defaultValue={actionData?.fields.title}
                         />
                         <div className='error'>
@@ -113,7 +112,13 @@ const NewPost = () => {
                             id='body'
                             defaultValue={actionData?.fields.body}
                         />*/}
-                        <Editor value={bodyValue} handleValueChange={handleEditorChange}/>
+                        <Editor
+                            id="body"
+                            formName="body"
+                            placeHolder="Markdown support"
+                            value={bodyValue}
+                            handleValueChange={handleEditorChange}
+                        />
                         <div className='error'>
                             {actionData?.fieldErrors.body
                                 ? (
