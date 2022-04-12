@@ -32,7 +32,7 @@ const PostItems = () => {
   const { data } = useLoaderData<ILoaderDataPosts>()
 
   return (
-    <div>
+    <>
       <div className='page-header'>
         <h1>Posts</h1>
         <Link to='/posts/new' className='btn'>
@@ -50,7 +50,7 @@ const PostItems = () => {
           </li>
         ))}
       </ul>
-    </div>
+    </>
   )
 }
 

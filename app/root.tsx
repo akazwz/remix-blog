@@ -3,14 +3,15 @@ import {
   Links,
   Outlet,
   LiveReload,
-  Link,
+  Link, Scripts, ScrollRestoration,
 } from '@remix-run/react'
+import type { LinksFunction, MetaFunction } from '@remix-run/node'
 import type { ReactNode } from 'react'
 import globalStylesUrl from './styles/gloabal.css'
 
-export const links = () => [{ rel: 'stylesheet', href: globalStylesUrl }]
+export const links: LinksFunction = () => [{ rel: 'stylesheet', href: globalStylesUrl }]
 
-export const meta = () => {
+export const meta: MetaFunction = () => {
   const description = 'A cool blog built with Remix'
   const keywords = 'remix, react, javascript, typescript,'
 
@@ -41,12 +42,15 @@ function Document({ children, title }: IDocument) {
     <head>
       <meta charSet='utf-8' />
       <meta name='viewport' content='width=device-width,initial-scale=1' />
+      {typeof document === 'undefined' ? '__STYLES__' : null}
       <Meta />
       <Links />
       <title>{title ?? 'Remix Blog'}</title>
     </head>
     <body>
     {children}
+    <ScrollRestoration />
+    <Scripts />
     {process.env.NODE_ENV === 'development' ? <LiveReload /> : null}
     </body>
     </html>
@@ -62,7 +66,7 @@ function Layout({ children }: ILayout) {
     <>
       <nav className='navbar'>
         <Link to='/' className='logo'>
-          <img src={'/logo.png'} alt='logo' width="32px" height="32px"/>
+          <img src={'/logo.png'} alt='logo' width='32px' height='32px' />
           AKAZWZ
         </Link>
         <ul className='nav'>
