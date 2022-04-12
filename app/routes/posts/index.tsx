@@ -1,57 +1,45 @@
-import { Link, useLoaderData } from '@remix-run/react'
-import type { LoaderFunction } from '@remix-run/node'
+import {Link, useLoaderData} from '@remix-run/react'
+import type {LoaderFunction} from '@remix-run/node'
+import type {PostItem} from "~/types";
+import {db} from '~/utils/db.server'
 
-export interface PostItem {
-  id: string,
-  attributes: {
-    title: string,
-    body: string,
-    description: string,
-    publishedAt: string,
-  }
+export const loader: LoaderFunction = async () => {
+    return {
+        posts: await db.post.findMany({
+            take: 20,
+            select: {id: true, title: true, body: true, createdAt: true},
+            orderBy: {createdAt: 'desc'}
+        })
+    }
 }
 
-export interface ILoaderDataPosts {
-  data: PostItem[],
-  meta: any,
-}
-
-export const loader:LoaderFunction = async () => {
-  // get posts
-  const url = process.env.STRAPI_URL + '/api/posts'
-  const res = await fetch(url)
-  const jsonData = await res.json()
-  const { data, meta } = jsonData
-  return {
-    data,
-    meta,
-  }
+export type LoaderDataPosts = {
+    posts: Array<PostItem>
 }
 
 const PostItems = () => {
-  const { data } = useLoaderData<ILoaderDataPosts>()
-
-  return (
-    <>
-      <div className='page-header'>
-        <h1>Posts</h1>
-        <Link to='/posts/new' className='btn'>
-          New Post
-        </Link>
-      </div>
-      <ul className='posts-list'>
-        {data.map((post: PostItem) => (
-          <li key={post.id}>
-            <Link to={`/posts/${post.id}`}>
-              <h3>{post.attributes.title}</h3>
-              <p>{post.attributes.description}</p>
-              {new Date(post.attributes.publishedAt).toLocaleString()}
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </>
-  )
+    const {posts} = useLoaderData<LoaderDataPosts>()
+    console.log(posts)
+    return (
+        <>
+            <div className='page-header'>
+                <h1>Posts</h1>
+                <Link to='/posts/new' className='btn'>
+                    New Post
+                </Link>
+            </div>
+            <ul className='posts-list'>
+                {posts.map((post: PostItem) => (
+                    <li key={post.id}>
+                        <Link to={`/posts/${post.id}`}>
+                            <h3>{post.title}</h3>
+                            {new Date(post.createdAt!).toLocaleString()}
+                        </Link>
+                    </li>
+                ))}
+            </ul>
+        </>
+    )
 }
 
 export default PostItems

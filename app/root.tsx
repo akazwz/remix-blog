@@ -2,10 +2,13 @@ import {
   Meta,
   Links,
   Outlet,
+  Scripts,
+  ScrollRestoration,
   LiveReload,
-  Link, Scripts, ScrollRestoration,
+  Link,
 } from '@remix-run/react'
 import type { LinksFunction, MetaFunction } from '@remix-run/node'
+import type { ErrorBoundaryComponent } from '@remix-run/node'
 import type { ReactNode } from 'react'
 import globalStylesUrl from './styles/gloabal.css'
 
@@ -19,6 +22,18 @@ export const meta: MetaFunction = () => {
     description,
     keywords,
   }
+}
+
+// error boundary
+export const ErrorBoundary: ErrorBoundaryComponent = ({ error }) => {
+  return (
+    <Document>
+      <Layout>
+        <h1>Error</h1>
+        <p>{error.message}</p>
+      </Layout>
+    </Document>
+  )
 }
 
 export default function App() {

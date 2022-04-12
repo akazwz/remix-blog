@@ -1,22 +1,26 @@
-import { Link, useLoaderData } from '@remix-run/react'
-import type { LoaderFunction } from '@remix-run/node'
-import { marked } from 'marked'
-import type { PostItem } from '~/routes/posts/index'
+import {Link, useLoaderData} from '@remix-run/react'
+import type {LoaderFunction} from '@remix-run/node'
+import {marked} from 'marked'
+import {db} from '~/utils/db.server'
+import type {PostItem} from "~/types";
 
 // get posts/${postsId}
-export const loader: LoaderFunction = async ({ params }) => {
-  const { postId } = params
-  const url = process.env.STRAPI_URL + `/api/posts/${postId}`
-  const res = await fetch(url)
-  const jsonData = await res.json()
-  let { data, meta } = jsonData
-  const { attributes } = data
-  let { body } = attributes
+export const loader: LoaderFunction = async ({params}) => {
+    const {postId} = params
 
-  // let image show more responsive(refer to dev.to)
-  const renderer: any = {
-    image(href: string | null, title: string | null): string {
-      return `<img
+    const post = await db.post.findUnique({
+        where: {id: postId}
+    })
+
+    if (!post) throw new Error('Post not found')
+
+    const data = {post}
+    const body = post.body
+
+    // let image show more responsive(refer to dev.to)
+    const renderer: any = {
+        image(href: string | null, title: string | null): string {
+            return `<img
                 src=${href} 
                 alt=${title} 
                 loading='lazy'
@@ -30,42 +34,40 @@ export const loader: LoaderFunction = async ({ params }) => {
                     border-radius: 0.375rem;
                   '
                />`
+        }
     }
-  }
 
-  marked.use({ renderer })
-  // change body from markdown to html
-  data['attributes']['body'] = marked(body)
-  return {
-    data,
-    meta,
-  }
+    marked.use({renderer})
+    // change body from markdown to html
+    data['post']['body'] = marked(body)
+    console.log(data)
+    return data
 }
 
-export interface ILoaderDataPost {
-  data: PostItem,
-  meta: any,
+type LoaderDataPost = {
+    post: PostItem
 }
 
 const Post = () => {
-  const { data } = useLoaderData<ILoaderDataPost>()
+    const data = useLoaderData<LoaderDataPost>()
+    const {post} = data
 
-  return (
-    <div>
-      <div className='page-header'>
-        <h1>{data.attributes.title}</h1>
-        <Link to='/posts' className='btn btn-reverse'>
-          Back
-        </Link>
-      </div>
-      <div>
-        {data.attributes.description} --- published at {new Date(data.attributes.publishedAt).toLocaleDateString()}
-      </div>
-      <div>
-      </div>
-      <div dangerouslySetInnerHTML={{ __html: data.attributes.body }} />
-    </div>
-  )
+    return (
+        <div>
+            <div className='page-header'>
+                <h1>{post.title}</h1>
+                <Link to='/posts' className='btn btn-reverse'>
+                    Back
+                </Link>
+            </div>
+            <div>
+                --- published at {new Date(post.createdAt!).toLocaleString()}
+            </div>
+            <div>
+            </div>
+            <div dangerouslySetInnerHTML={{__html: post.body}}/>
+        </div>
+    )
 }
 
 export default Post

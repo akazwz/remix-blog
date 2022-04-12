@@ -1,6 +1,8 @@
 import { Form, Link, useActionData } from '@remix-run/react'
 import type { ActionFunction } from '@remix-run/node'
 import { json, redirect } from '@remix-run/node'
+import {db} from '~/utils/db.server'
+import {PostItem} from "~/types";
 
 const validateTitle = (title: any) => {
   if (typeof title !== 'string' || title.length < 3) {
@@ -23,18 +25,26 @@ export const action: ActionFunction = async ({ request }) => {
   const title = form.get('title')
   const body = form.get('body')
 
-  const fields = { title, body }
-
   const fieldErrors = {
     title: validateTitle(title),
     body: validateBody(body),
+  }
+
+  let fields = {title, body}
+
+  if (typeof title != 'string' || typeof body !== 'string') {
+    return badRequest({ fieldErrors, fields })
   }
 
   if (Object.values(fieldErrors).some(Boolean)) {
     return badRequest({ fieldErrors, fields })
   }
 
-  return redirect('/posts')
+  const postItem:PostItem = { title, body }
+
+  const post = await db.post.create({data: postItem})
+
+  return redirect(`/posts/${post.id}`)
 }
 
 export interface IPostItemAction {
