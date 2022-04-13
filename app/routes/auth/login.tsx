@@ -1,5 +1,5 @@
 import {Form, useActionData} from "@remix-run/react";
-import {ActionFunction} from "@remix-run/node";
+import type {ActionFunction} from "@remix-run/node";
 import {createUserSession, login} from "~/utils/session.server";
 import {badRequest} from "~/utils/http-response.server";
 
@@ -15,17 +15,19 @@ const validatePassword = (password: any) => {
     }
 }
 
+type Fields = {
+    username?: string
+    password?: string
+}
+
 export const action: ActionFunction = async ({request}) => {
     const form = await request.formData()
     const username = form.get('username')
     const password = form.get('password')
 
-    console.log(username)
-    console.log(password)
-
     const fields = {username, password}
 
-    const fieldErrors = {
+    const fieldErrors: Fields = {
         username: validateUsername(username),
         password: validatePassword(password),
     }
@@ -50,10 +52,13 @@ export const action: ActionFunction = async ({request}) => {
     return createUserSession(user.id, '/posts')
 }
 
-const Login = () => {
-    const data = useActionData()
-    console.log(data)
+type ActionDataProps = {
+    fields?: Fields,
+    fieldErrors?: Fields,
+}
 
+const Login = () => {
+    const data = useActionData<ActionDataProps>()
     return (
         <div className="auth-container">
             <div className="page-header">
@@ -68,7 +73,19 @@ const Login = () => {
                             id="username"
                             name="username"
                             type="text"
+                            defaultValue={data?.fields?.username}
                         />
+                        <div className='error'>
+                            {data?.fieldErrors?.username ? (
+                                <p
+                                    className='form-validation-error'
+                                    role='alert'
+                                    id='username-error'
+                                >
+                                    {data.fieldErrors.username}
+                                </p>
+                            ) : null}
+                        </div>
                     </div>
 
                     <div className='form-control'>
@@ -77,7 +94,19 @@ const Login = () => {
                             id="password"
                             name="password"
                             type="password"
+                            defaultValue={data?.fields?.password}
                         />
+                        <div className='error'>
+                            {data?.fieldErrors?.password ? (
+                                <p
+                                    className='form-validation-error'
+                                    role='alert'
+                                    id='password-error'
+                                >
+                                    {data.fieldErrors.password}
+                                </p>
+                            ) : null}
+                        </div>
                     </div>
 
                     <button className="btn btn-block">Submit</button>
