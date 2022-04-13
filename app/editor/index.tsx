@@ -19,7 +19,7 @@ const Editor = ({value, handleValueChange, id, formName, placeHolder,}: EditorPr
                     >
                     <p>Preview will show here</p> 
                     </div>`
-    
+
     const renderer: any = {
         image(href: string | null, title: string | null): string {
             return `<img
@@ -44,6 +44,12 @@ const Editor = ({value, handleValueChange, id, formName, placeHolder,}: EditorPr
     const htmlVal = marked.parse(value || previewPlaceHolder)
     return (
         <div>
+            <div
+                style={{
+                    display: "flex"
+                }}
+            >
+            </div>
             {/* editor */}
             <textarea
                 id={id}

@@ -1,6 +1,6 @@
 import {useState} from "react"
 import {Form, Link, useActionData} from '@remix-run/react'
-import {json, redirect} from '@remix-run/node'
+import {redirect} from '@remix-run/node'
 
 import type {ActionFunction} from '@remix-run/node'
 import type {ChangeEvent} from "react";
@@ -8,6 +8,8 @@ import type {PostItem} from "~/types";
 
 import {db} from '~/utils/db.server'
 import Editor from "~/editor";
+import {badRequest} from "~/utils/http-response.server";
+import {getUser} from "~/utils/session.server";
 
 const validateTitle = (title: any) => {
     if (typeof title !== 'string' || title.length < 3) {
@@ -21,18 +23,20 @@ const validateBody = (body: any) => {
     }
 }
 
-const badRequest = (data: any) => {
-    return json(data, {status: 400})
-}
 
 export const action: ActionFunction = async ({request}) => {
     const form = await request.formData()
     const title = form.get('title')
     const body = form.get('body')
+    const user = await getUser(request)
 
     const fieldErrors = {
         title: validateTitle(title),
         body: validateBody(body),
+    }
+
+    if (!user) {
+        return redirect('/auth/login')
     }
 
     let fields = {title, body}
@@ -47,7 +51,12 @@ export const action: ActionFunction = async ({request}) => {
 
     const postItem: PostItem = {title, body}
 
-    const post = await db.post.create({data: postItem})
+    const post = await db.post.create({
+        data: {
+            ...postItem,
+            userId: user.id,
+        }
+    })
 
     return redirect(`/posts/${post.id}`)
 }
