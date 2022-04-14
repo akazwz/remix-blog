@@ -173,7 +173,10 @@ function Layout ({ children }:ILayout) {
 						{user ? (
 							<>
 								<li>
-									<NavLink to="/posts/new">
+									<NavLink
+										to="/posts/new"
+										style={({ isActive }) => isActive ? activeStyle : {}}
+									>
 										New Post
 									</NavLink>
 								</li>
