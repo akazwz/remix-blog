@@ -17,7 +17,8 @@ const Home:React.FC = () => {
 			>
 				Currently leaning and coding.
 			</h2>
-			<a href={'https://github.com/akazwz'} rel="noreferrer" target="_blank" style={{ width: '3rem', height: '3rem' }}>
+			<a href={'https://github.com/akazwz'} rel="noreferrer" target="_blank"
+			   style={{ width: '3rem', height: '3rem' }}>
 				<GitHub />
 			</a>
 		</div>
