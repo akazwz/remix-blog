@@ -52,7 +52,7 @@ const Login = () => {
 			<div className="page-header">
 				<h1>Login</h1>
 			</div>
-			<FormUsernamePwd data={data}/>
+			<FormUsernamePwd data={data} />
 		</div>
 	)
 }

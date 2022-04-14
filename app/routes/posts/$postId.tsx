@@ -1,10 +1,12 @@
 import { Form, Link, useLoaderData } from '@remix-run/react'
-import type { ActionFunction, LoaderFunction } from '@remix-run/node'
-import { marked } from 'marked'
-import { db } from '~/utils/db.server'
-import type { PostItem } from '~/types'
-import { getUser } from '~/utils/session.server'
 import { redirect } from '@remix-run/node'
+import { marked } from 'marked'
+
+import type { ActionFunction, LoaderFunction } from '@remix-run/node'
+import type { PostItem } from '~/types'
+
+import { db } from '~/utils/db.server'
+import { getUser } from '~/utils/session.server'
 
 // get post by postId
 export const loader:LoaderFunction = async ({ request, params }) => {
@@ -91,13 +93,13 @@ const Post = () => {
 			</div>
 
 			{/* markdown render to html*/}
-			<div dangerouslySetInnerHTML={{ __html: post.body }}/>
+			<div dangerouslySetInnerHTML={{ __html: post.body }} />
 
 			<div className="page-footer">
 				{/* user owned the post can delete */}
 				{user?.id === post?.userId && (
 					<Form method="delete">
-						<input type="hidden" name="_method" value="delete"/>
+						<input type="hidden" name="_method" value="delete" />
 						<button className="btn btn-delete">Delete</button>
 					</Form>
 				)}

@@ -49,7 +49,7 @@ const Register:React.FC = () => {
 			<div className="page-header">
 				<h1>Register</h1>
 			</div>
-			<FormUsernamePwd data={data}/>
+			<FormUsernamePwd data={data} />
 		</div>
 	)
 }

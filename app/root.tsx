@@ -1,15 +1,22 @@
+import React from 'react'
 import {
 	Meta,
 	Links,
 	Outlet,
 	Scripts,
+	useCatch,
+	useLoaderData,
 	ScrollRestoration,
 	LiveReload,
-	Link, useLoaderData, Form,
+	NavLink,
+	Form,
 } from '@remix-run/react'
+
+import type { ReactNode } from 'react'
 import type { LinksFunction, LoaderFunction, MetaFunction } from '@remix-run/node'
 import type { ErrorBoundaryComponent } from '@remix-run/node'
-import type { ReactNode } from 'react'
+import type { CatchBoundaryComponent } from '@remix-run/react/routeModules'
+
 import globalStylesUrl from './styles/gloabal.css'
 import { getUser } from '~/utils/session.server'
 
@@ -31,10 +38,22 @@ export const meta:MetaFunction = () => {
 export const ErrorBoundary:ErrorBoundaryComponent = ({ error }) => {
 	return (
 		<Document>
-			<Layout>
+			<ErrorLayout>
 				<h1>Error</h1>
 				<p>{error.message}</p>
-			</Layout>
+			</ErrorLayout>
+		</Document>
+	)
+}
+
+// catch boundary
+export const CatchBoundary:CatchBoundaryComponent = () => {
+	const caught = useCatch()
+	return (
+		<Document>
+			<ErrorLayout>
+				<h1>{caught.status} {caught.statusText}</h1>
+			</ErrorLayout>
 		</Document>
 	)
 }
@@ -50,7 +69,7 @@ export default function App () {
 	return (
 		<Document>
 			<Layout>
-				<Outlet/>
+				<Outlet />
 			</Layout>
 		</Document>
 	)
@@ -65,18 +84,18 @@ function Document ({ children, title }:IDocument) {
 	return (
 		<html lang="en">
 		<head>
-			<meta charSet="utf-8"/>
-			<meta name="viewport" content="width=device-width,initial-scale=1"/>
+			<meta charSet="utf-8" />
+			<meta name="viewport" content="width=device-width,initial-scale=1" />
 			{typeof document === 'undefined' ? '__STYLES__' : null}
-			<Meta/>
-			<Links/>
-			<title>{title ?? 'Remix Blog'}</title>
+			<Meta />
+			<Links />
+			<title>{title ?? 'AKAZWZ'}</title>
 		</head>
 		<body>
 		{children}
-		<ScrollRestoration/>
-		<Scripts/>
-		{process.env.NODE_ENV === 'development' ? <LiveReload/> : null}
+		<ScrollRestoration />
+		<Scripts />
+		{process.env.NODE_ENV === 'development' ? <LiveReload /> : null}
 		</body>
 		</html>
 	)
@@ -86,39 +105,90 @@ interface ILayout{
 	children:ReactNode,
 }
 
-function Layout ({ children }:ILayout) {
-	const { user } = useLoaderData()
+const ErrorLayout = ({ children }:ILayout) => {
 	return (
 		<>
 			<nav className="navbar">
-				<Link to="/" className="logo">
-					<img src={'/logo.png'} alt="logo" width="32px" height="32px"/>
+				<NavLink to="/" className="logo">
+					<img src={'/logo.png'} alt="logo" width="32px" height="32px" />
 					AKAZWZ
-				</Link>
+				</NavLink>
 				<ul className="nav">
 					<li>
-						<Link to="/posts">
+						<NavLink
+							to="/posts"
+							style={({ isActive }) => {
+								console.log(isActive ? 'dd' : 'ddd')
+								return {}
+							}}
+						>
 							Posts
-						</Link>
+						</NavLink>
 					</li>
-					{user ? (
-						<>
-							<li>
-								<Link to="/posts/new">
-									New Post
-								</Link>
-							</li>
-
-							<li>
-								<Form action="/auth/logout" method="post">
-									<button type="submit" className="btn">
-										Logout {user.username}
-									</button>
-								</Form>
-							</li>
-						</>
-					) : null}
 				</ul>
+			</nav>
+			<div
+				style={{
+					height: '70vh',
+					display: 'flex',
+					alignItems: 'center',
+					justifyContent: 'center'
+				}}
+			>{children}</div>
+		</>
+	)
+}
+
+function Layout ({ children }:ILayout) {
+	const { user } = useLoaderData()
+
+	const activeStyle = {
+		color: '#578cfa'
+	}
+
+	return (
+		<>
+			<nav className="navbar">
+				<div style={{
+					maxWidth: '1280px',
+					width: '100%',
+					margin: '0 auto',
+					display: 'flex',
+					justifyContent: 'space-between',
+					alignItems: 'center',
+				}}>
+					<NavLink to="/" className="logo" style={({ isActive }) => isActive ? activeStyle : {}}>
+						<img src={'/logo.png'} alt="logo" width="32px" height="32px" />
+						AKAZWZ
+					</NavLink>
+					<ul className="nav">
+						<li>
+							<NavLink
+								to="/posts"
+								style={({ isActive }) => isActive ? activeStyle : {}}
+							>
+								Posts
+							</NavLink>
+						</li>
+						{user ? (
+							<>
+								<li>
+									<NavLink to="/posts/new">
+										New Post
+									</NavLink>
+								</li>
+
+								<li>
+									<Form action="/auth/logout" method="post">
+										<button type="submit" className="btn">
+											Logout {user.username}
+										</button>
+									</Form>
+								</li>
+							</>
+						) : null}
+					</ul>
+				</div>
 			</nav>
 			<div className="container">{children}</div>
 		</>
