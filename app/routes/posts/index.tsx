@@ -19,14 +19,10 @@ export type LoaderDataPosts = {
 
 const PostItems = () => {
     const {posts} = useLoaderData<LoaderDataPosts>()
-    console.log(posts)
     return (
         <>
             <div className='page-header'>
                 <h1>Posts</h1>
-                <Link to='/posts/new' className='btn'>
-                    New Post
-                </Link>
             </div>
             <ul className='posts-list'>
                 {posts.map((post: PostItem) => (
