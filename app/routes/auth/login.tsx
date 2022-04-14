@@ -1,17 +1,19 @@
-import { useActionData, useLoaderData } from '@remix-run/react'
-import { createUserSession, getUser, login } from '~/utils/session.server'
-import { badRequest } from '~/utils/http-response.server'
-import { FormUsernamePwd, validatePassword, validateUsername } from '~/routes/auth/common'
+import { useActionData } from '@remix-run/react'
+import { redirect } from '@remix-run/node'
 
 import type { ActionFunction, LoaderFunction } from '@remix-run/node'
 import type { ActionDataProps, Fields, } from '~/routes/auth/common'
-import { redirect } from '@remix-run/node'
+
+import { createUserSession, getUser, login } from '~/utils/session.server'
+import { badRequest } from '~/utils/http-response.server'
+import { FormUsernamePwd, validatePassword, validateUsername } from '~/routes/auth/common'
 
 export const loader:LoaderFunction = async ({ request }) => {
 	const user = await getUser(request)
 	if (!user) {
 		return {}
 	}
+	// already logged.
 	return redirect('/posts')
 }
 

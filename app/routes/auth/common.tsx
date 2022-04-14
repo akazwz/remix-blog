@@ -19,15 +19,15 @@ export type Fields = {
 }
 
 export type ActionDataProps = {
-	fields?: Fields,
-	fieldErrors?: Fields,
+	fields?:Fields,
+	fieldErrors?:Fields,
 }
 
 interface IProps{
-	data: any
+	data:any
 }
 
-export const FormUsernamePwd = ({data}:IProps) => {
+export const FormUsernamePwd = ({ data }:IProps) => {
 	return (
 		<div className="page-container">
 			<Form method="post">

@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { Form, Link, useActionData } from '@remix-run/react'
-import { LoaderFunction, redirect } from '@remix-run/node'
+import { redirect } from '@remix-run/node'
 
-import type { ActionFunction } from '@remix-run/node'
 import type { ChangeEvent } from 'react'
+import type { LoaderFunction, } from '@remix-run/node'
+import type { ActionFunction } from '@remix-run/node'
 import type { PostItem } from '~/types'
 
 import { db } from '~/utils/db.server'
@@ -24,7 +25,9 @@ const validateBody = (body:any) => {
 }
 
 export const loader:LoaderFunction = async ({ request }) => {
+	// get user
 	const user = await getUser(request)
+	// not logged
 	if (!user) {
 		return redirect('/auth/login')
 	}
@@ -32,6 +35,7 @@ export const loader:LoaderFunction = async ({ request }) => {
 }
 
 export const action:ActionFunction = async ({ request }) => {
+	// get info
 	const form = await request.formData()
 	const title = form.get('title')
 	const body = form.get('body')
@@ -78,7 +82,7 @@ export interface IActionData{
 	fields:IPostItemAction
 }
 
-const NewPost = () => {
+const NewPost:React.FC = () => {
 	const actionData = useActionData<IActionData>()
 	const [bodyValue, setBodyValue] = useState<string>('')
 	const handleEditorChange = (e:ChangeEvent<HTMLTextAreaElement>) => {
@@ -123,11 +127,6 @@ const NewPost = () => {
 					</div>
 					<div className="form-control">
 						<label htmlFor="body">Body</label>
-						{/*<textarea
-                            name='body'
-                            id='body'
-                            defaultValue={actionData?.fields.body}
-                        />*/}
 						<Editor
 							id="body"
 							formName="body"

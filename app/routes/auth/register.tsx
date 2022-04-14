@@ -1,15 +1,14 @@
 import React from 'react'
 import { useActionData } from '@remix-run/react'
-import { register } from '~/utils/session.server'
-import { badRequest } from '~/utils/http-response.server'
-import { FormUsernamePwd, validatePassword, validateUsername } from '~/routes/auth/common'
-
-import type { ActionFunction, LoaderFunction } from '@remix-run/node'
-import type { ActionDataProps, Fields, } from '~/routes/auth/common'
 import { redirect } from '@remix-run/node'
 
-export const loader: LoaderFunction = () => {
-  return redirect('/auth/register-not-allowed')
+import type { ActionFunction, LoaderFunction } from '@remix-run/node'
+import type { ActionDataProps } from '~/routes/auth/common'
+
+import { FormUsernamePwd } from '~/routes/auth/common'
+
+export const loader:LoaderFunction = () => {
+	return redirect('/auth/register-not-allowed')
 }
 
 export const action:ActionFunction = async ({ request }) => {

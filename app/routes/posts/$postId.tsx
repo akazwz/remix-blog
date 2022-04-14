@@ -6,7 +6,7 @@ import type { PostItem } from '~/types'
 import { getUser } from '~/utils/session.server'
 import { redirect } from '@remix-run/node'
 
-// get posts/${postsId}
+// get post by postId
 export const loader:LoaderFunction = async ({ request, params }) => {
 	const { postId } = params
 
@@ -85,14 +85,16 @@ const Post = () => {
 					Back
 				</Link>
 			</div>
+			{/* post date */}
 			<div>
 				--- {new Date(post.createdAt!).toLocaleString()}
 			</div>
-			<div>
-			</div>
+
+			{/* markdown render to html*/}
 			<div dangerouslySetInnerHTML={{ __html: post.body }}/>
 
 			<div className="page-footer">
+				{/* user owned the post can delete */}
 				{user?.id === post?.userId && (
 					<Form method="delete">
 						<input type="hidden" name="_method" value="delete"/>
@@ -100,7 +102,6 @@ const Post = () => {
 					</Form>
 				)}
 			</div>
-
 		</div>
 	)
 }
