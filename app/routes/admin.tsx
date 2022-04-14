@@ -10,6 +10,7 @@ export const loader:LoaderFunction = async ({ request }) => {
 	if (!user) {
 		return redirect('/auth/login')
 	}
+	return {}
 }
 
 const AdminPage:React.FC = () => {

@@ -5,18 +5,19 @@ import {
 	Scripts,
 	ScrollRestoration,
 	LiveReload,
-	Link,
+	Link, useLoaderData, Form,
 } from '@remix-run/react'
-import type { LinksFunction, MetaFunction } from '@remix-run/node'
+import type { LinksFunction, LoaderFunction, MetaFunction } from '@remix-run/node'
 import type { ErrorBoundaryComponent } from '@remix-run/node'
 import type { ReactNode } from 'react'
 import globalStylesUrl from './styles/gloabal.css'
+import { getUser } from '~/utils/session.server'
 
-export const links: LinksFunction = () => [
+export const links:LinksFunction = () => [
 	{ rel: 'stylesheet', href: globalStylesUrl },
 ]
 
-export const meta: MetaFunction = () => {
+export const meta:MetaFunction = () => {
 	const description = 'A cool blog built with Remix'
 	const keywords = 'remix, react, javascript, typescript,'
 
@@ -27,7 +28,7 @@ export const meta: MetaFunction = () => {
 }
 
 // error boundary
-export const ErrorBoundary: ErrorBoundaryComponent = ({ error }) => {
+export const ErrorBoundary:ErrorBoundaryComponent = ({ error }) => {
 	return (
 		<Document>
 			<Layout>
@@ -36,6 +37,13 @@ export const ErrorBoundary: ErrorBoundaryComponent = ({ error }) => {
 			</Layout>
 		</Document>
 	)
+}
+
+export const loader:LoaderFunction = async ({ request }) => {
+	const user = await getUser(request)
+	return {
+		user,
+	}
 }
 
 export default function App () {
@@ -48,12 +56,12 @@ export default function App () {
 	)
 }
 
-interface IDocument {
-	children: ReactNode,
-	title?: string,
+interface IDocument{
+	children:ReactNode,
+	title?:string,
 }
 
-function Document ({ children, title }: IDocument) {
+function Document ({ children, title }:IDocument) {
 	return (
 		<html lang="en">
 		<head>
@@ -74,11 +82,12 @@ function Document ({ children, title }: IDocument) {
 	)
 }
 
-interface ILayout {
-	children: ReactNode,
+interface ILayout{
+	children:ReactNode,
 }
 
-function Layout ({ children }: ILayout) {
+function Layout ({ children }:ILayout) {
+	const { user } = useLoaderData()
 	return (
 		<>
 			<nav className="navbar">
@@ -88,10 +97,27 @@ function Layout ({ children }: ILayout) {
 				</Link>
 				<ul className="nav">
 					<li>
-						<Link to="posts">
+						<Link to="/posts">
 							Posts
 						</Link>
 					</li>
+					{user ? (
+						<>
+							<li>
+								<Link to="/posts/new">
+									New Post
+								</Link>
+							</li>
+
+							<li>
+								<Form action="/auth/logout" method="post">
+									<button type="submit" className="btn">
+										Logout {user.username}
+									</button>
+								</Form>
+							</li>
+						</>
+					) : null}
 				</ul>
 			</nav>
 			<div className="container">{children}</div>

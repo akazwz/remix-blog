@@ -1,26 +1,30 @@
-import {Link, useLoaderData} from '@remix-run/react'
-import type {LoaderFunction} from '@remix-run/node'
-import {marked} from 'marked'
-import {db} from '~/utils/db.server'
-import type {PostItem} from "~/types";
+import { Form, Link, useLoaderData } from '@remix-run/react'
+import type { ActionFunction, LoaderFunction } from '@remix-run/node'
+import { marked } from 'marked'
+import { db } from '~/utils/db.server'
+import type { PostItem } from '~/types'
+import { getUser } from '~/utils/session.server'
+import { redirect } from '@remix-run/node'
 
 // get posts/${postsId}
-export const loader: LoaderFunction = async ({params}) => {
-    const {postId} = params
+export const loader:LoaderFunction = async ({ request, params }) => {
+	const { postId } = params
 
-    const post = await db.post.findUnique({
-        where: {id: postId}
-    })
+	const post = await db.post.findUnique({
+		where: { id: postId }
+	})
 
-    if (!post) throw new Error('Post not found')
+	if (!post) throw new Error('Post not found')
 
-    const data = {post}
-    const body = post.body
+	const user = await getUser(request)
 
-    // let image show more responsive(refer to dev.to)
-    const renderer: any = {
-        image(href: string | null, title: string | null): string {
-            return `<img
+	const data = { post, user }
+	const body = post.body
+
+	// let image show more responsive(refer to dev.to)
+	const renderer:any = {
+		image (href:string | null, title:string | null):string {
+			return `<img
                 src=${href} 
                 alt=${title} 
                 loading='lazy'
@@ -34,40 +38,71 @@ export const loader: LoaderFunction = async ({params}) => {
                     border-radius: 0.375rem;
                   '
                />`
-        }
-    }
+		}
+	}
 
-    marked.use({renderer})
-    // change body from markdown to html
-    data['post']['body'] = marked(body)
-    console.log(data)
-    return data
+	marked.use({ renderer })
+	// change body from markdown to html
+	data['post']['body'] = marked(body)
+
+	return data
+}
+
+export const action:ActionFunction = async ({ request, params }) => {
+	if (request.method !== 'DELETE') return {}
+
+	const { postId } = params
+
+	const user = await getUser(request)
+
+	const post = await db.post.findUnique({
+		where: { id: postId }
+	})
+
+	if (!post) throw new Error('Post not found')
+
+	if (user && post.userId === user.id) {
+		await db.post.delete({ where: { id: postId } })
+	}
+
+	return redirect('/posts')
 }
 
 type LoaderDataPost = {
-    post: PostItem
+	post:PostItem
+	user:any
 }
 
 const Post = () => {
-    const data = useLoaderData<LoaderDataPost>()
-    const {post} = data
+	const data = useLoaderData<LoaderDataPost>()
+	const { post, user } = data
 
-    return (
-        <div>
-            <div className='page-header'>
-                <h1>{post.title}</h1>
-                <Link to='/posts' className='btn btn-reverse'>
-                    Back
-                </Link>
-            </div>
-            <div>
-                --- published at {new Date(post.createdAt!).toLocaleString()}
-            </div>
-            <div>
-            </div>
-            <div dangerouslySetInnerHTML={{__html: post.body}}/>
-        </div>
-    )
+	return (
+		<div>
+			<div className="page-header">
+				<h1>{post.title}</h1>
+				<Link to="/posts" className="btn btn-reverse">
+					Back
+				</Link>
+			</div>
+			<div>
+				--- {new Date(post.createdAt!).toLocaleString()}
+			</div>
+			<div>
+			</div>
+			<div dangerouslySetInnerHTML={{ __html: post.body }}/>
+
+			<div className="page-footer">
+				{user?.id === post?.userId && (
+					<Form method="delete">
+						<input type="hidden" name="_method" value="delete"/>
+						<button className="btn btn-delete">Delete</button>
+					</Form>
+				)}
+			</div>
+
+		</div>
+	)
 }
 
 export default Post
